@@ -1,0 +1,39 @@
+version: '3'
+
+services:
+  database:
+    image: mysql:5.6
+    restart: always
+    environment:
+      MYSQL_RANDOM_ROOT_PASSWORD: "yes"
+      MYSQL_DATABASE: app@dev
+      MYSQL_USER: app@dev
+      MYSQL_PASSWORD: 123456
+    ports:
+      - 3306:3306
+  backup:
+    build: ../src/
+    restart: always
+    environment:
+      BACKUP_TIME: "* * * * *"
+      MYSQL_ENV_MYSQL_DATABASE: app@dev
+      MYSQL_ENV_MYSQL_USER: app@dev
+      MYSQL_ENV_MYSQL_PASSWORD: 123456
+      MYSQL_PORT_3306_TCP_PORT: 3306
+      CLEANUP_OLDER_THAN: 10 # cleanup files after ... days
+    links:
+      - database:mysql
+    volumes:
+      - ./backups/:/backups/
+  admin:
+    image: phpmyadmin/phpmyadmin
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: 123456
+      PMA_HOST: database
+      PMA_PORT: 3306
+    links:
+      - database:mysql
+    ports:
+      - 8181:80
