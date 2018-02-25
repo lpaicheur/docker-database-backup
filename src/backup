@@ -16,4 +16,13 @@ if [ -n "$CLEANUP_OLDER_THAN" ]; then cleanup;  fi
 echo 'creating database dump'
 mysqldump -h mysql --add-drop-table -u$MYSQL_ENV_MYSQL_USER -p $MYSQL_ENV_MYSQL_DATABASE --password=$MYSQL_ENV_MYSQL_PASSWORD | bzip2 -c > /backups/backup_`date '+%Y%m%d_%H%M'`.sql.bz2
 
+if [ -n "$AWS_ACCESS_KEY_ID" ] && [ -n "$AWS_SECRET_ACCESS_KEY" ] && [ -n "$AWS_DEFAULT_REGION" ] && [ -n "$AWS_BUCKET_NAME" ];
+then
+  echo 'uploading to AWS';
+  find /backups/ -type f -not -name ".*" -mtime -1 -exec aws s3 cp {} s3://$AWS_BUCKET_NAME \;
+fi
+
+find /backups/ -type f -not -name ".*" -mtime -1 -exec aws s3 cp {} s3://$AWS_BUCKET_NAME \;
+
+
 echo 'Finished: SUCCESS'
