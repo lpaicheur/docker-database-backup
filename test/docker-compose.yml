@@ -32,9 +32,6 @@ services:
   admin:
     image: phpmyadmin/phpmyadmin
     environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_USER: admin
-      MYSQL_PASSWORD: 123456
       PMA_HOST: database
       PMA_PORT: 3306
     links:
